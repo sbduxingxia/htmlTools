@@ -29,10 +29,6 @@
 				text-align: center;
 				padding:10px 0px;
 			}
-			.middle-box input{
-				display: inline-block;
-				width: 50%;
-			}
 			.right-box{
 				position: relative;
 				float:left;
@@ -76,8 +72,16 @@
 				background: white;
 				padding: 0px 5px;
 			}
+			.middle-box-input{
+				width: 90%;
+				padding: 5px 8px;
+			}
 			.red-info{
 				color: red;
+				text-align: left;
+			}
+			.small-tip{
+				font-size: 12px;
 				text-align: left;
 			}
 		</style>
@@ -85,6 +89,12 @@
 	<body>
 		<script src="jquery.min.js"></script>
 		<script src="jquery.md5.js"></script>
+		<script src="crypto/core.js"></script>
+		<script src="crypto/crypto-js.js"></script>
+		<script src="crypto/cipher-core.js"></script>
+		<script src="crypto/enc-base64.js"></script>
+		<script src="crypto/mode-ecb.js"></script>
+		<script src="crypto/aes.js"></script>
 		<div class="left-box">
 			<p>输入原文内容</p>
 			<textarea id="txt_input" class="text-input" type="text"></textarea>
@@ -104,7 +114,15 @@
 			<div class="middle-box-item">
 				<div class="middle-box-item-tip">加密</div>
 				<button id="str2md5">MD5加密</button>		
-			</div>			
+			</div>
+			<div class="middle-box-item">
+				<div class="middle-box-item-tip">AES</div>
+				<label class="small-tip">ECB|PKCS5Padding</label>
+				<button id="str2aes">AES加密</button>		
+				<button id="aes2str">AES解密</button>	
+				<label style="text-align: left;">秘钥</label>
+				<input id="aes_key" type="text" class="middle-box-input">	
+			</div>						
 			<!-- <div class="middle-box-item">
 									<div class="middle-box-item-tip">UTF-8</div>
 									<button id="utf82ch">转中文</button>
@@ -135,6 +153,34 @@
 				$("#str2md5").click(function(){
 					text_out.val($.md5(text_in.val()).toUpperCase());
 				})
+				$("#aes2str").click(function(){
+					text_out.val(aesDecrpy(text_in.val(),$("#aes_key").val()));
+				})
+				$("#str2aes").click(function(){
+					text_out.val(aseEncrpy(text_in.val(),$("#aes_key").val()));
+				})				
+				function aseEncrpy(content,keyStr){
+					var key = CryptoJS.enc.Utf8.parse(keyStr); 
+				  var encryptedData = CryptoJS.AES.encrypt(content, key, {  
+				    mode: CryptoJS.mode.ECB,
+				    padding: CryptoJS.pad.Pkcs7
+				  });
+				  var encryptedBase64Str = encryptedData.toString();
+				  var encryptedStr = encryptedData.ciphertext.toString();  
+				  return encryptedBase64Str
+				}
+				function aesDecrpy(content,key){
+					var encryptedHexStr = CryptoJS.enc.Hex.parse(content);
+					var encryptedBase64Str = CryptoJS.enc.Base64.parse(content);
+					var encryptedData  = CryptoJS.AES.decrypt(content, CryptoJS.enc.Utf8.parse(key), {  
+		        mode: CryptoJS.mode.ECB,
+		        padding: CryptoJS.pad.Pkcs7  
+		    	});  
+		    	console.log(encryptedData )
+		    	console.log(encryptedData.toString(CryptoJS.enc.Utf8))
+    			var decryptResult = encryptedData.toString(CryptoJS.enc.Utf8);
+    			return decryptResult;  
+				}
 				/*$("#ch2utf8").click(function(){
 					text_out.val(EncodeUtf8(text_in.val()));
 				})*/				
