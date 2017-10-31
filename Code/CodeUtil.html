@@ -1,0 +1,245 @@
+<html>
+	<head>
+    <meta charset="utf-8">
+    <title>字符编码转换</title>
+		<style type="text/css">
+			body{
+				position: relative;
+				/*width: 100%;*/
+				height: 100%;
+				overflow-y: hidden;
+				overflow-x: auto;
+				min-width: 600px;
+				font-size:18px;
+			}
+			.left-box{
+				position: relative;
+				float:left;
+				width: 45%;
+				height: 100%;
+				min-width: 270px;
+				text-align: center;
+			}
+			.middle-box{
+				position: relative;
+				float:left;
+				width: 10%;
+				height: 100%;
+				min-width: 60px;
+				text-align: center;
+				padding:10px 0px;
+			}
+			.middle-box input{
+				display: inline-block;
+				width: 50%;
+			}
+			.right-box{
+				position: relative;
+				float:left;
+				width: 45%;
+				height: 100%;
+				min-width: 270px;
+				text-align: center;
+			}
+			.text-input{
+				position: relative;
+				width: 80%;
+				height: 80%;
+				margin:0 auto;
+				resize:none;
+				overflow: auto;
+				font-size:18px;
+				border:2px solid #000;
+			}
+			.middle-box > button,.middle-box-item > button {
+				margin:8px auto;
+				padding:0px 16px;
+				font-size:16px;
+				border-radius: 4px;
+			}
+			.middle-box-item{
+				position: relative;
+				padding: 10px;
+				border:1px solid #787878;
+				border-radius: 4px;
+				margin-top: 15px;
+				margin-bottom: 15px;
+			}
+			.middle-box-item-tip{
+				position: absolute;
+				left: -1;
+				top: -10;
+				font-size: 16px;
+				line-height: 20px;
+				height: 20px;
+				border:1px solid #787878;
+				background: white;
+				padding: 0px 5px;
+			}
+			.red-info{
+				color: red;
+				text-align: left;
+			}
+		</style>
+	</head>
+	<body>
+		<script src="jquery.min.js"></script>
+		<script src="jquery.md5.js"></script>
+		<div class="left-box">
+			<p>输入原文内容</p>
+			<textarea id="txt_input" class="text-input" type="text"></textarea>
+		</div>
+		<div class="middle-box">
+			
+			<div class="middle-box-item">
+				<div class="middle-box-item-tip">URI</div>
+				<button id="urlEncode">URI转码</button>
+				<button id="urlDecode">URI解码</button>		
+			</div>
+			<div class="middle-box-item">
+				<div class="middle-box-item-tip">Unicode</div>
+				<button id="unicode2ch">转中文</button>
+				<button id="ch2unicode">转Unicode</button>			
+			</div>
+			<div class="middle-box-item">
+				<div class="middle-box-item-tip">加密</div>
+				<button id="str2md5">MD5加密</button>		
+			</div>			
+			<!-- <div class="middle-box-item">
+									<div class="middle-box-item-tip">UTF-8</div>
+									<button id="utf82ch">转中文</button>
+									<button id="ch2utf8">转UTF-8</button>			
+								</div>	 -->					
+		</div>
+		<div class="right-box">
+			<p>转换结果</p>
+			<textarea id="txt_result" class="text-input" type="text" disabled="false">sss</textarea>
+		</div>
+		<script type="text/javascript">
+			$(document).ready(function() {
+				var text_in = $("#txt_input")
+				var text_out = $("#txt_result")
+				var enter = "\r\n";
+				$("#urlEncode").click(function(){
+					text_out.val(encodeURI(text_in.val()));
+				})
+				$("#urlDecode").click(function(){
+					text_out.val(decodeURI(text_in.val()));
+				})
+				$("#unicode2ch").click(function(){
+					text_out.val(tohanzi(text_in.val()));
+				})
+				$("#ch2unicode").click(function(){
+					text_out.val(tounicode(text_in.val()));
+				})
+				$("#str2md5").click(function(){
+					text_out.val($.md5(text_in.val()).toUpperCase());
+				})
+				/*$("#ch2utf8").click(function(){
+					text_out.val(EncodeUtf8(text_in.val()));
+				})*/				
+				function tounicode(data){
+			    if(data == '') return '请输入汉字';
+			    var str =''; 
+			    for(var i=0;i<data.length;i++){
+			    	str+="\\u"+parseInt(data[i].charCodeAt(0),10).toString(16);
+			    }
+			    return str;
+				}
+				function tohanzi(data){
+			    if(data == '') return '请输入十六进制unicode';
+			    data = data.split("\\u");
+			    var str ='';
+			    for(var i=0;i<data.length;i++){
+			    	if(data[i]&&data[i].length>0){
+			    		str+=String.fromCharCode(parseInt(data[i],16).toString(10));
+			    	}
+			    }
+			    return str;
+				}
+
+
+				//--------把中文字符转换成Utf8编码------------------------//
+			  function EncodeUtf8(s1){
+			      var s = escape(s1);
+			      var sa = s.split("%");
+			      var retV ="";
+			      if(sa[0] != ""){
+			         retV = sa[0];
+			      }
+			      for(var i = 1; i < sa.length; i ++){
+			           if(sa[i].substring(0,1) == "u"){
+			               retV += Hex2Utf8(Str2Hex(sa[i].substring(1,5)));
+			               
+			           }
+			           else retV += "%" + sa[i];
+			      }
+			      
+			      return retV;
+			  }
+			  function Str2Hex(s){
+			      var c = "";
+			      var n;
+			      var ss = "0123456789ABCDEF";
+			      var digS = "";
+			      for(var i = 0; i < s.length; i ++){
+			         c = s.charAt(i);
+			         n = ss.indexOf(c);
+			         digS += Dec2Dig(eval(n));
+			           
+			      }
+			      //return value;
+			      return digS;
+			  }
+			  function Dec2Dig(n1){
+			      var s = "";
+			      var n2 = 0;
+			      for(var i = 0; i < 4; i++){
+			         n2 = Math.pow(2,3 - i);
+			         if(n1 >= n2){
+			            s += '1';
+			            n1 = n1 - n2;
+			          }
+			         else
+			          s += '0';
+			          
+			      }
+			      return s;
+			      
+			  }
+			  function Dig2Dec(s){
+			      var retV = 0;
+			      if(s.length == 4){
+			          for(var i = 0; i < 4; i ++){
+			              retV += eval(s.charAt(i)) * Math.pow(2, 3 - i);
+			          }
+			          return retV;
+			      }
+			      return -1;
+			  }
+			  function Hex2Utf8(s){
+			     var retS = "";
+			     var tempS = "";
+			     var ss = "";
+			     if(s.length == 16){
+			         tempS = "1110" + s.substring(0, 4);
+			         tempS += "10" +  s.substring(4, 10);
+			         tempS += "10" + s.substring(10,16);
+			         var sss = "0123456789ABCDEF";
+			         for(var i = 0; i < 3; i ++){
+			            retS += "%";
+			            ss = tempS.substring(i * 8, (eval(i)+1)*8);
+			            
+			            
+			            
+			            retS += sss.charAt(Dig2Dec(ss.substring(0,4)));
+			            retS += sss.charAt(Dig2Dec(ss.substring(4,8)));
+			         }
+			         return retS;
+			     }
+			     return "";
+			  }
+			});
+		</script>
+	</body>
+</html>

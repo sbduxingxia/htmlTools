@@ -1,0 +1,135 @@
+<html>
+	<head>
+    <meta charset="utf-8">
+    <title>分表整合查询语句</title>
+		<style type="text/css">
+			body{
+				position: relative;
+				/*width: 100%;*/
+				height: 100%;
+				overflow-y: hidden;
+				overflow-x: auto;
+				min-width: 600px;
+				font-size:18px;
+			}
+			.left-box{
+				position: relative;
+				float:left;
+				width: 45%;
+				height: 100%;
+				min-width: 270px;
+				text-align: center;
+			}
+			.middle-box{
+				position: relative;
+				float:left;
+				width: 10%;
+				height: 100%;
+				min-width: 60px;
+				text-align: center;
+			}
+			.middle-box input{
+				display: inline-block;
+				width: 50%;
+			}
+			.right-box{
+				position: relative;
+				float:left;
+				width: 45%;
+				height: 100%;
+				min-width: 270px;
+				text-align: center;
+			}
+			.text-input{
+				position: relative;
+				width: 80%;
+				height: 80%;
+				margin:0 auto;
+				resize:none;
+				overflow: auto;
+				font-size:18px;
+			}
+			.middle-box > button {
+				margin-top:10px;
+				padding:2px 16px;
+				font-size:16px;
+			}
+			.red-info{
+				color: red;
+				text-align: left;
+			}
+		</style>
+	</head>
+	<body>
+		<script src="jquery.min.js"></script>
+		<div class="left-box">
+			<p>输入单表查询语句</p>
+			<textarea id="txt_input" class="text-input" type="text"></textarea>
+		</div>
+		<div class="middle-box">
+			<p></p>
+			<p>替换: {<input type="text" id="key" >}</p>
+			<p>开始: <input type="text" id="begin" ></p>
+			<p>结束: <input type="text" id="end" ></p>
+			<p>自动补零: <input type="checkbox" id="autoAdd" style="width:auto;"></p>
+			<p>长度: <input type="text" id="strLength" value="2"></p>
+			<p class="red-info">
+				说明:<br>
+				①【替换】替换左侧输入内容的文本内容；<br>
+				②【开始】【结束】输入整形；<br>
+				③【自动补零】根据【长度】值进行数值补零操作。<br>
+			</p>
+			<button id="one2many">转SQL</button>
+		</div>
+		<div class="right-box">
+			<p>转换结果</p>
+			<textarea id="txt_result" class="text-input" type="text" disabled="false">sss</textarea>
+		</div>
+		<script type="text/javascript">
+			$(document).ready(function() {
+				var text_in = $("#txt_input")
+				var text_out = $("#txt_result")
+				var enter = "\r\n";
+				$("#one2many").bind("click",function(){
+					//获取单个sql查询语句
+					var key = "{"+$("#key").val()+"}"
+					var begin = parseInt($("#begin").val())
+					var end = parseInt($("#end").val())
+					var length = parseInt($("#strLength").val())
+					var itemTxt = text_in.val();
+					var hadKeyNum = itemTxt.split(key).length-1;
+					var resultTxt="";
+					if(begin<=end){
+						for(var i=begin;i<=end;i++){
+							if(resultTxt!=""){
+								resultTxt+=" union all "+enter;
+							}
+							var itemResTxt = itemTxt;
+							for(var j=0;j<hadKeyNum;j++){
+								if($("#autoAdd").is(":checked")){
+									itemResTxt=itemResTxt.replace(key,createZeroStr(length-(i+"").length)+i);
+								}else{
+									itemResTxt=itemResTxt.replace(key,i);
+								}
+								
+							}
+							resultTxt += "("+itemResTxt+")";
+						}
+					}
+					text_out.val(resultTxt);
+				});
+				function autoAdd(value,length){
+					
+
+				}
+				function createZeroStr(length){
+					var result="";
+					for(var i=0;i<length;i++){
+						result += "0";
+					}
+					return result;
+				}
+			});
+		</script>
+	</body>
+</html>

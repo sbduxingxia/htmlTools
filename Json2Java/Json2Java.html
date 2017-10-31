@@ -1,0 +1,116 @@
+<html>
+	<head>
+    <meta charset="utf-8">
+    <title>JSON转Java</title>
+		<style type="text/css">
+			body{
+				position: relative;
+				/*width: 100%;*/
+				height: 100%;
+				overflow-y: hidden;
+				overflow-x: auto;
+				min-width: 600px;
+				font-size:18px;
+			}
+			.left-box{
+				position: relative;
+				float:left;
+				width: 45%;
+				height: 100%;
+				min-width: 270px;
+				text-align: center;
+			}
+			.middle-box{
+				position: relative;
+				float:left;
+				width: 10%;
+				height: 100%;
+				min-width: 60px;
+				text-align: center;
+			}
+			.right-box{
+				position: relative;
+				float:left;
+				width: 45%;
+				height: 100%;
+				min-width: 270px;
+				text-align: center;
+			}
+			.text-input{
+				position: relative;
+				width: 80%;
+				height: 80%;
+				margin:0 auto;
+				resize:none;
+				overflow: auto;
+				font-size:18px;
+			}
+			.middle-box > button {
+				margin-top:40px;
+				padding:2px 16px;
+				font-size:16px;
+			}
+		</style>
+	</head>
+	<body>
+		<script src="jquery.min.js"></script>
+		<div class="left-box">
+			<p>输入JSON数据</p>
+			<textarea id="txt_input" class="text-input" type="text"></textarea>
+		</div>
+		<div class="middle-box">
+			<p></p>
+			<button id="Json2Java">转Java</button>
+		</div>
+		<div class="right-box">
+			<p>转换结果</p>
+			<textarea id="txt_result" class="text-input" type="text" disabled="false">sss</textarea>
+		</div>
+		<script type="text/javascript">
+			$(document).ready(function() {
+				var text_in = $("#txt_input")
+				var text_out = $("#txt_result")
+				$("#Json2Java").bind("click",function(){
+					var inObject=null;
+					try{
+						inObject = JSON.parse(text_in.val());
+						console.log(inObject);
+					}catch(e){
+						alert("输入内容JSON结构错误");
+						return;
+					}
+					text_out.val(object2Java(inObject));
+				})
+				function object2Java(obj){
+					var enter = "\r\n";
+					var result="";
+					for (var key in obj){
+						result += "private "+getObjceType(obj[key])+" "+key+";"+enter;
+					}
+					return result;
+				}
+				function getObjceType(object){
+					var result="Object";
+					if(typeof object==="object"){
+						if(object instanceof Array){
+							if(object.length>0){
+								result = "List<"+getObjceType(object[0])+">"
+							}else{
+								result = "List<Object>"
+							}
+						}else{
+							result = "Object";
+						}
+					}else if(typeof object==="string"){
+						result = "String";
+					}else if(typeof object==="number"){
+						result = "int";
+					}else{
+						result = "Object";
+					}
+					return result;
+				}
+			});
+		</script>
+	</body>
+</html>
